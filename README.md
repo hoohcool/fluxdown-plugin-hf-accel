@@ -2,6 +2,8 @@
 
 [FluxDown](https://fluxdown.com) 的 resolver 插件（`hoohcool@hf-accel`）：下载 HuggingFace 文件时自动探测镜像可用性并改写到 hf-mirror.com，全部镜像不可用则回退 HF 直连——加速失败绝不阻断下载。
 
+**vibe coding** 项目，AI代码占比巨大，人工测试不足，请知悉
+
 ## 工作方式
 
 对**本次要下载的这个文件**，在所有适用镜像上并行发起 `GET + Range: bytes=0-65535`（64 KB 采样）探测，一次探测同时验证**可用性**与**链路质量**：
