@@ -1,0 +1,59 @@
+{
+  "identity": "hoohcool@hf-accel",
+  "name": "HuggingFace 加速",
+  "version": "1.0.0",
+  "description": "HuggingFace 文件下载加速：把 huggingface.co 的 /resolve/ 直链改写到镜像 hf-mirror.com（path 与 query 原样保留，覆盖 models / datasets / spaces）。改写前对本次要下载的文件在各镜像上并行实测（Range 采样 64 KB）确认可用性，探测到 206 时回填 Range 支持让引擎直接多线程分段；全部镜像不可用则放行 HF 直连，加速失败绝不阻断下载。任务自带 Cookie / Authorization 时自动放行，凭据绝不发往第三方镜像。可在设置中固定镜像或直连，也可按行添加镜像前缀参与探测。大文件经镜像 302 至 xethub CDN 直取，小文件由镜像缓存直出。",
+  "homepage": "https://github.com/hoohcool/fluxdown-plugin-hf-accel",
+  "minAppVersion": "0.1.60",
+  "resolvers": [
+    {
+      "match": {
+        "urls": [
+          "*://huggingface.co/*",
+          "*://www.huggingface.co/*"
+        ]
+      },
+      "entry": "resolve.js",
+      "timeoutMs": 20000
+    }
+  ],
+  "settings": [
+    {
+      "key": "mode",
+      "title": "加速模式",
+      "description": "自动 = 每次下载前探测镜像可用性后改写；固定 hf-mirror = 优先内置镜像（不可用时仍回退其他可用源）；直连 = 禁用加速",
+      "type": "string",
+      "widget": "select",
+      "options": [
+        { "value": "auto", "label": "自动（探测可用性）" },
+        { "value": "mirror", "label": "固定 hf-mirror" },
+        { "value": "direct", "label": "直连（禁用加速）" }
+      ],
+      "default": "auto"
+    },
+    {
+      "key": "extraMirrors",
+      "title": "附加镜像前缀",
+      "description": "选填。内置的 hf-mirror.com 已完成 host 替换式改写，无需在此重复填写；这里只放 gh-proxy 风格的转发前缀——完整 HuggingFace 链接直接拼在它后面（例如 https://your-proxy.example.com/ 会得到 https://your-proxy.example.com/https://huggingface.co/...）。每行一个 https:// 前缀，自动参与探测，全部失败时放行直连。",
+      "type": "string",
+      "widget": "textarea",
+      "default": ""
+    },
+    {
+      "key": "hfToken",
+      "title": "HuggingFace Access Token（Gated Repo 用，不需要请留空）",
+      "description": "部分模型仓库（如 meta-llama/Llama 系列）需在官网登录并申请许可后才能下载，称为 Gated Repo——大多数公开模型无需此项。确有需要时：先登录 https://huggingface.co/settings/tokens 创建只读 Access Token（Fine-grained、勾选 Read 权限即可），粘贴到这里。token 仅在镜像返回 401/403 时才随请求发出（经 hf-mirror.com 转发到官方校验），公开仓库的下载不会携带。注意：token 会经过第三方镜像站，介意请勿填写。",
+      "type": "string",
+      "widget": "password",
+      "default": ""
+    },
+    {
+      "key": "verbose",
+      "title": "详细日志",
+      "description": "记录每个镜像的探测结果（状态码与耗时）",
+      "type": "boolean",
+      "widget": "toggle",
+      "default": "false"
+    }
+  ]
+}
