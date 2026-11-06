@@ -51,4 +51,4 @@ node scripts/pack.mjs
 # dist/hf-accel-<version>.fxplug + .sha256（确定性构建，字节可复现）
 ```
 
-发布即打上更高版本号的 Git 标签并发 GitHub Release（非草稿、非预发布），附件放**恰好一个** `.fxplug`。插件已在 [fluxdown-plugin-index](https://github.com/zerx-lab/fluxdown-plugin-index) 登记（`hoohcool@hf-accel`），之后每次 Release 由索引自动收录，无需再提 PR。
+
